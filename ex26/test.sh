@@ -1,4 +1,7 @@
 make clean; make
+if [ $? -ne 0 ] ; then
+	exit 1
+fi
 echo =============================================
 echo Start test 1 ------------------
 echo

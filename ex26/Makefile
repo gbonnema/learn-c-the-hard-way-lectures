@@ -13,4 +13,4 @@ ex26_config.o:
 	gcc $(CFLAGS) ex26_config.c -c -o ex26_config.o
 
 clean:
-	rm *.o ex26
+	rm -f *.o ex26
