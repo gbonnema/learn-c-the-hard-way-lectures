@@ -30,9 +30,21 @@ config_t *read_config(const char *config_name)
     {
         /* process log_fname */
         config_file_t *cfg_file = &config->logfiles[config->nlogfiles];
+        if (log_fname[strlen(log_fname) - 1] == '\n')
+        {
+            log_fname[strlen(log_fname) - 1] = '\0';
+        }
 
         cfg_file->log_fname = strdup(log_fname);
-        cfg_file->exists = access(cfg_file->log_fname, R_OK) == 0 ? true : false;
+        if (access(cfg_file->log_fname, R_OK))
+        {
+            log_warn("Log file %s", cfg_file->log_fname);
+            cfg_file->exists = false;
+        }
+        else
+        {
+            cfg_file->exists = true;
+        }
 
         config->nlogfiles++;
     }
@@ -72,7 +84,9 @@ void print_config(config_t *config)
         {
             config_file_t cfile = config->logfiles[i];
             if (cfile.log_fname == NULL) break;
-            printf("%s %s\n", cfile.log_fname, cfile.exists ? "exists" : "does not exist");
+            printf("%s %s\n",
+                   cfile.log_fname,
+                   cfile.exists ? "exists" : "does not exist or read is not permitted");
         }
     }
 }
