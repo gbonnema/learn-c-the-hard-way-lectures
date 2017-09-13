@@ -16,5 +16,7 @@ typedef struct Search
 } search_t;
 
 search_t *read_args(int argc, char *argv[]);
+void free_search_struct(search_t *search);
+void print_args(search_t *search);
 
 #endif

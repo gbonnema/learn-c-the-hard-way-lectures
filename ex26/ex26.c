@@ -1,24 +1,26 @@
 #include "ex26_args.h"
+#include "ex26_config.h"
 #include "dbg.h"
 #include <stdio.h>
 
 int main(int argc, char *argv[])
 {
-    search_t *search = read_args(argc, argv);
+    config_t *config = NULL;
+    search_t *search = NULL;
+
+    config = read_config();
+    check(config, "Read of config failed.");
+
+    search = read_args(argc, argv);
     check(search != NULL, "Reading search arguments failed.");
-    printf("The search terms are:\n");
-    char *start = "\t";
-    char *and = " & ";
-    char *or = " | ";
-    char *glue = start;
-    for (size_t i=0; i<max_search_args; i++)
-    {
-        if (!search->search_arg[i]) break;
-        printf("%s%s", glue, search->search_arg[i]);
-        glue = search->and_args ? and : or;
-    }
-    printf("\n");
+
+    print_args(search);
+
+    free_search_struct(search);
     return 0;
 error:
+    // FIXME: search and config need better / deeper free
+    free_search_struct(search);
+    if (config) free(config);
     return -1;
 }

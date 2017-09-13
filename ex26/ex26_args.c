@@ -36,14 +36,36 @@ search_t *read_args(int argc, char *argv[])
 
     return search;
 error:
+    free_search_struct(search);
+    return NULL;
+}
+
+void free_search_struct(search_t *search)
+{
     if (search)
     {
         for(size_t i=0; i<max_search_args; i++)
         {
+            if (search->search_arg[i] == NULL) break;
             free(search->search_arg[i]);
             search->search_arg[i] = 0;
         }
         free(search);
     }
-    return NULL;
+}
+
+void print_args(search_t *search)
+{
+    printf("The search terms are:\n");
+    char *start = "\t";
+    char *and = " & ";
+    char *or = " | ";
+    char *glue = start;
+    for (size_t i=0; i<max_search_args; i++)
+    {
+        if (!search->search_arg[i]) break;
+        printf("%s%s", glue, search->search_arg[i]);
+        glue = search->and_args ? and : or;
+    }
+    printf("\n");
 }
