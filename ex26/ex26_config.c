@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <glob.h>
 #include "ex26_config.h"
 #include "dbg.h"
 
@@ -24,9 +25,9 @@ config_t *read_config(const char *config_name)
     fd_config = fopen(config_name, "r");
     check(fd_config, "Configuration file %s would not open", config_name);
 
-    char log_fname[MAX_LOG_FNAME] = { 0 };
-    char *ret = NULL;
-    while((ret = fgets(log_fname, max_log_fname, fd_config)))
+    size_t size = max_log_fname;
+    char *log_fname = calloc(size, sizeof(char));
+    while(getline(&log_fname, &size, fd_config) != -1)
     {
         /* process log_fname */
         config_file_t *cfg_file = &config->logfiles[config->nlogfiles];
