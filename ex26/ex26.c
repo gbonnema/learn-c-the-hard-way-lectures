@@ -1,7 +1,8 @@
 #include "ex26_args.h"
-#include "ex26_config.h"
-#include "dbg.h"
 #include <stdio.h>
+#include "ex26_config.h"
+#include "ex26_logfile.h"
+#include "dbg.h"
 
 const char *config_name = ".logfind";
 
@@ -18,6 +19,15 @@ int main(int argc, char *argv[])
 
     print_args(search);
     print_config(config);
+
+    for (unsigned i = 0; i < config->nlogfiles; i++)
+    {
+        if (config->logfiles[i].exists)
+        {
+            char *fname = config->logfiles[i].log_fname;
+            scan_logfile(fname, search);
+        }
+    }
 
     free_search_struct(search);
     return 0;

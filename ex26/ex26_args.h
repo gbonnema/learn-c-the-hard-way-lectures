@@ -10,7 +10,7 @@ extern const size_t max_length_search_args;
 
 typedef struct Search
 {
-    int nr_search_args;
+    size_t nr_search_args;
     char *search_arg[MAX_SEARCH_ARGS];
     _Bool and_args;
 } search_t;
