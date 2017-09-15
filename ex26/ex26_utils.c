@@ -17,3 +17,13 @@ _Bool startsWith(const char *str, const char *prefix)
     return lenstr < lenprefix ? 0 : strncmp(prefix, str, lenprefix) == 0;
 }
 
+/**
+ * Strips a trailing '\n' from the specified string, replaces '\n' by '\0'.
+ *
+ * @param str char * a zero terminated string.
+ */
+void strip_trailing_newline(char *str)
+{
+    size_t len = strlen(str);
+    str[len-1] = str[len-1] == '\n' ? '\0' : str[len-1];
+}

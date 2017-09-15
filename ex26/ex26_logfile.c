@@ -21,7 +21,7 @@ int scan_logfile(const char *fname, search_t *search)
         linenr++;
         if (logfile_search(line, search))
         {
-            printf("%s %ud: %s", fname, linenr, line);
+            printf("%s %u: %s", fname, linenr, line);
         }
     }
     fclose(fp);

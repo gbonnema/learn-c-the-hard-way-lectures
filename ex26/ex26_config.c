@@ -5,14 +5,15 @@
 #include <stdbool.h>
 #include <glob.h>
 #include "ex26_config.h"
+#include "ex26_utils.h"
 #include "dbg.h"
 
 const size_t max_log_fname = MAX_LOG_FNAME;
 const size_t max_logfile_array = MAX_LOGFILE_ARRAY;
 
 /* prototypes */
-int glob_fname(char *log_fname, config_file_t *cfg_file);
-
+int glob_fname(char *log_fname, config_t *config);
+int config_new_logfile(config_t *config, const char *fname);
 
 config_t *read_config(const char *config_name)
 {
@@ -32,25 +33,13 @@ config_t *read_config(const char *config_name)
     char *pattern = calloc(size, sizeof(char));
     while(getline(&pattern, &size, fd_config) != -1)
     {
-        /* process pattern */
-        config_file_t *cfg_file = &config->logfiles[config->nlogfiles];
-        if (pattern[strlen(pattern) - 1] == '\n')
-        {
-            pattern[strlen(pattern) - 1] = '\0';
-        }
-
+        strip_trailing_newline(pattern);
         /* glob fname, if not successfull just copy pattern as filename */
-        if (glob_fname(pattern, cfg_file) != 0)
+        if (glob_fname(pattern, config) != 0)
         {
-            cfg_file->log_fname = strdup(pattern);
-            cfg_file->exists = access(cfg_file->log_fname, R_OK) ? false : true;
-            if (cfg_file->exists == false)
-            {
-                log_warn("Log file %s", cfg_file->log_fname);
-            }
+            int ret = config_new_logfile(config, pattern);
+            if (ret != 0) log_warn("globbing results not finished: %s", pattern);
         }
-
-        config->nlogfiles++;
     }
 
 
@@ -63,15 +52,18 @@ error:
     return NULL;
 }
 
-int glob_fname(char *pattern, config_file_t *cfg_file)
+int glob_fname(char *pattern, config_t *config)
 {
-    glob_t *pglob = NULL;
+    glob_t *pglob = calloc(1, sizeof(glob_t));
+    check(pglob, "Allocation for glob_t failed.");
 
     /* glob may realloc log_fname and adapt size */
     int globres = glob(pattern, GLOB_TILDE, NULL, pglob);
-    if (globres != GLOB_NOMATCH)
+    if (globres == GLOB_NOMATCH)
     {
+        // for GLOB_NOMATCH no message is necessary, so not with check
         if (pglob) globfree(pglob);
+        free(pglob);
         return -1;
     }
     check(globres == 0, "Globbing failed (not due to NOMATCH)");
@@ -81,18 +73,29 @@ int glob_fname(char *pattern, config_file_t *cfg_file)
     for (size_t i = 0; i < pglob->gl_pathc; i++)
     {
         fname = pglob->gl_pathv[i];
-        cfg_file->log_fname = strdup(fname);
-        cfg_file->exists = access(cfg_file->log_fname, R_OK) ? false : true;
-        if (cfg_file->exists == false)
-        {
-            log_warn("Log file %s", cfg_file->log_fname);
-        }
+        int ret = config_new_logfile(config, fname);
+        check(ret == 0, "globbing results not finished");
     }
     /* Free pglob */
     if (pglob) globfree(pglob);
+    free(pglob);
     return 0;
 error:
     if (pglob) globfree(pglob);
+    free(pglob);
+    return -1;
+}
+
+int config_new_logfile(config_t *config, const char *fname)
+{
+    check(config->nlogfiles < max_logfile_array, "logfile array full");
+
+    config_file_t *cfg_file = &config->logfiles[config->nlogfiles];
+    config->nlogfiles++;
+    cfg_file->log_fname = strdup(fname);
+    cfg_file->exists = access(cfg_file->log_fname, R_OK) == 0 ? true : false;
+    return 0;
+error:
     return -1;
 }
 
@@ -123,7 +126,9 @@ void print_config(config_t *config)
             if (cfile.log_fname == NULL) break;
             printf("%s %s\n",
                    cfile.log_fname,
-                   cfile.exists ? "exists" : "does not exist or read is not permitted");
+                   cfile.exists
+                   ? "exists and is readable"
+                   : "does not exist or read not permitted");
         }
     }
 }

@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #define MAX_LOG_FNAME 255
-#define MAX_LOGFILE_ARRAY 100
+#define MAX_LOGFILE_ARRAY 200
 
 extern const size_t max_log_fname;
 extern const size_t max_logfile_array;
