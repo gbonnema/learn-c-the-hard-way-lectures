@@ -1,5 +1,6 @@
 #include "ex22.h"
 #include "dbg.h"
+#include <stdlib.h>
 
 const char *MY_NAME = "Zed A. Shaw";
 
@@ -7,7 +8,8 @@ void scope_demo(int count)
 {
     log_info("count is: %d", count);
 
-    if (count > 10) {
+    if (count > 10)
+    {
         int numbers = 100;	// BAD! BUGS!
 
         log_info("count in this scope is %d", numbers);
@@ -22,21 +24,26 @@ void scope_demo(int count)
 
 int main(int argc, char *argv[])
 {
+    (void)(argc);
+    (void)(argv);
+    struct State *state = calloc(1, sizeof(struct State));
+    check(state != NULL, "allocation of struct State failed");
+
     // test out THE_AGE accessors
-    log_info("My name: %s, age: %d", MY_NAME, get_age());
+    log_info("My name: %s, age: %d", MY_NAME, get_age(state));
 
-    set_age(100);
+    set_age(state, 100);
 
-    log_info("My age is now: %d", get_age());
+    log_info("My age is now: %d", get_age(state));
 
     // test out THE_SIZE extern
-    log_info("THE_SIZE is: %d", THE_SIZE);
-    print_size();
+    log_info("THE_SIZE is: %d", state->the_size);
+    print_size(state);
 
-    THE_SIZE = 9;
+    state->the_size = 9;
 
-    log_info("THE SIZE is now: %d", THE_SIZE);
-    print_size();
+    log_info("THE SIZE is now: %d", state->the_size);
+    print_size(state);
 
     // test the ratio function static
     log_info("Ratio at first: %f", update_ratio(2.0));
@@ -51,4 +58,7 @@ int main(int argc, char *argv[])
     log_info("count after calling scope_demo: %d", count);
 
     return 0;
+error:
+    if (state != NULL) free(state);
+    return 1;
 }

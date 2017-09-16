@@ -9,7 +9,7 @@ int get_age(struct State *state)
 
 void set_age(struct State *state, int age)
 {
-   state->the_age = age; 
+    state->the_age = age;
 }
 
 double update_ratio(double new_ratio)
@@ -22,7 +22,7 @@ double update_ratio(double new_ratio)
     return old_ratio;
 }
 
-void print_size()
+void print_size(struct State *state)
 {
-    log_info("I think size is: %d", THE_SIZE);
+    log_info("I think size is: %d", state->the_size);
 }
