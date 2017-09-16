@@ -3,16 +3,19 @@
 
 #define MAX_DATA 100
 
-typedef enum EyeColor {
+typedef enum EyeColor
+{
     BLUE_EYES, GREEN_EYES, BROWN_EYES,
     BLACK_EYES, OTHER_EYES
 } EyeColor;
 
-const char *EYE_COLOR_NAMES[] = {
+const char *EYE_COLOR_NAMES[] =
+{
     "Blue", "Green", "Brown", "Black", "Other"
 };
 
-typedef struct Person {
+typedef struct Person
+{
     int age;
     char first_name[MAX_DATA];
     char last_name[MAX_DATA];
@@ -39,7 +42,8 @@ int main(int argc, char *argv[])
     check(rc > 0, "You have to enter a number.");
 
     printf("What color are your eyes:\n");
-    for (i = 0; i <= OTHER_EYES; i++) {
+    for (i = 0; i <= OTHER_EYES; i++)
+    {
         printf("%d) %s\n", i + 1, EYE_COLOR_NAMES[i]);
     }
     printf("> ");
@@ -50,7 +54,7 @@ int main(int argc, char *argv[])
 
     you.eyes = eyes - 1;
     check(you.eyes <= OTHER_EYES
-            && you.eyes >= 0, "Do it right, that's not an option.");
+          && you.eyes >= 0, "Do it right, that's not an option.");
 
     printf("How much do you make an hour? ");
     rc = fscanf(stdin, "%f", &you.income);
