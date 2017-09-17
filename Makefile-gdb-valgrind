@@ -1,0 +1,13 @@
+CFLAGS = -Wall -g
+
+ex1: ex1.c
+ex3: ex3.c
+
+clean: 
+	rm -f ex1 ex3
+
+valgrind: 
+	valgrind --leak-check=full ./ex3
+
+gdb:
+	gdb --batch --ex run --ex bt --ex q --args ./ex3
